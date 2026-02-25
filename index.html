@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Sistema CRUD para gerenciamento de empreendimentos catarinenses — SCTEC Empreendedorismo SC." />
+  <title>SCTEC — Empreendedorismo SC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><img src="Imagens/sctec-logo.svg" alt="SCTEC Logo"
+            style="width:100%;height:100%;object-fit:contain;" /></div>
+        <div class="logo-text">
+          <span class="logo-sub">Empreendedorismo</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="nav-list" onclick="showView('list')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+        </svg>
+        <span>Empreendimentos</span>
+      </button>
+      <button class="nav-item" id="nav-add" onclick="showView('add')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="16" />
+          <line x1="8" y1="12" x2="16" y2="12" />
+        </svg>
+        <span>Novo Cadastro</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-stats">
+      <div class="stat-item">
+        <span class="stat-value" id="stat-total">0</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value stat-green" id="stat-ativos">0</span>
+        <span class="stat-label">Ativos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value stat-red" id="stat-inativos">0</span>
+        <span class="stat-label">Inativos</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span>Santa Catarina · 2026</span>
+    </div>
+  </aside>
+
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="mobile-title">SCTEC — SC</span>
+    <button class="btn-mobile-add" onclick="showView('add')">+</button>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- VIEW: LIST -->
+    <section class="view" id="view-list">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Empreendimentos</h1>
+          <p class="page-subtitle">Gerencie os registros de empreendimentos de Santa Catarina</p>
+        </div>
+        <button class="btn btn-primary" onclick="showView('add')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Novo Empreendimento
+        </button>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Buscar por nome, município..."
+            oninput="applyFilters()" />
+        </div>
+        <select id="filter-segmento" class="filter-select" onchange="applyFilters()">
+          <option value="">Todos os segmentos</option>
+          <option value="Tecnologia">Tecnologia</option>
+          <option value="Comércio">Comércio</option>
+          <option value="Indústria">Indústria</option>
+          <option value="Serviços">Serviços</option>
+          <option value="Agronegócio">Agronegócio</option>
+        </select>
+        <select id="filter-status" class="filter-select" onchange="applyFilters()">
+          <option value="">Todos os status</option>
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+        <button class="btn btn-ghost" onclick="clearFilters()">Limpar</button>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" id="empty-state" style="display:none">
+        <div class="empty-icon">🏢</div>
+        <h2>Nenhum empreendimento encontrado</h2>
+        <p>Cadastre o primeiro empreendimento catarinense ou ajuste os filtros de busca.</p>
+        <button class="btn btn-primary" onclick="showView('add')">Cadastrar agora</button>
+      </div>
+
+      <!-- CARDS GRID -->
+      <div class="cards-grid" id="cards-grid"></div>
+    </section>
+
+    <!-- VIEW: ADD / EDIT FORM -->
+    <section class="view hidden" id="view-add">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="form-title">Novo Empreendimento</h1>
+          <p class="page-subtitle">Preencha os dados do empreendimento catarinense</p>
+        </div>
+        <button class="btn btn-ghost" onclick="showView('list')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Voltar
+        </button>
+      </div>
+
+      <form class="form-card" id="emp-form" onsubmit="handleSubmit(event)">
+        <input type="hidden" id="form-id" />
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="f-nome">Nome do Empreendimento *</label>
+            <input type="text" id="f-nome" class="form-input" placeholder="Ex: Tech Soluções" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-empreendedor">Empreendedor(a) Responsável *</label>
+            <input type="text" id="f-empreendedor" class="form-input" placeholder="Nome completo" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-municipio">Município de SC *</label>
+            <select id="f-municipio" class="form-input" required>
+              <option value="">Selecione o município</option>
+              <option>Abelardo Luz</option>
+              <option>Agrolândia</option>
+              <option>Agronômica</option>
+              <option>Água Doce</option>
+              <option>Águas de Chapecó</option>
+              <option>Águas Frias</option>
+              <option>Águas Mornas</option>
+              <option>Alfredo Wagner</option>
+              <option>Alto Bela Vista</option>
+              <option>Anchieta</option>
+              <option>Angelina</option>
+              <option>Anita Garibaldi</option>
+              <option>Anitápolis</option>
+              <option>Antônio Carlos</option>
+              <option>Apiúna</option>
+              <option>Arabutã</option>
+              <option>Araquari</option>
+              <option>Araranguá</option>
+              <option>Armazém</option>
+              <option>Arroio Trinta</option>
+              <option>Arvoredo</option>
+              <option>Ascurra</option>
+              <option>Atalanta</option>
+              <option>Aurora</option>
+              <option>Balneário Arroio do Silva</option>
+              <option>Balneário Barra do Sul</option>
+              <option>Balneário Camboriú</option>
+              <option>Balneário Gaivota</option>
+              <option>Balneário Piçarras</option>
+              <option>Balneário Rincão</option>
+              <option>Bandeirante</option>
+              <option>Barra Bonita</option>
+              <option>Barra Velha</option>
+              <option>Bela Vista do Toldo</option>
+              <option>Belmonte</option>
+              <option>Benedito Novo</option>
+              <option>Biguaçu</option>
+              <option>Blumenau</option>
+              <option>Bocaina do Sul</option>
+              <option>Bom Jardim da Serra</option>
+              <option>Bom Jesus</option>
+              <option>Bom Jesus do Oeste</option>
+              <option>Bom Retiro</option>
+              <option>Bombinhas</option>
+              <option>Campo Alegre</option>
+              <option>Campo Belo do Sul</option>
+              <option>Campo Erê</option>
+              <option>Campos Novos</option>
+              <option>Canelinha</option>
+              <option>Canoinhas</option>
+              <option>Capão Alto</option>
+              <option>Capinzal</option>
+              <option>Capivari de Baixo</option>
+              <option>Catanduvas</option>
+              <option>Caxambu do Sul</option>
+              <option>Celso Ramos</option>
+              <option>Cerro Negro</option>
+              <option>Chapadão do Lageado</option>
+              <option>Chapecó</option>
+              <option>Cocal do Sul</option>
+              <option>Concórdia</option>
+              <option>Cordilheira Alta</option>
+              <option>Coronel Freitas</option>
+              <option>Coronel Martins</option>
+              <option>Correia Pinto</option>
+              <option>Corupá</option>
+              <option>Criciúma</option>
+              <option>Cunha Porã</option>
+              <option>Cunhataí</option>
+              <option>Curitibanos</option>
+              <option>Descanso</option>
+              <option>Dionísio Cerqueira</option>
+              <option>Dona Emma</option>
+              <option>Doutor Pedrinho</option>
+              <option>Entre Rios</option>
+              <option>Ermo</option>
+              <option>Erval Velho</option>
+              <option>Faxinal dos Guedes</option>
+              <option>Flor do Sertão</option>
+              <option>Florianópolis</option>
+              <option>Formosa do Sul</option>
+              <option>Forquilhinha</option>
+              <option>Fraiburgo</option>
+              <option>Frei Rogério</option>
+              <option>Galvão</option>
+              <option>Garopaba</option>
+              <option>Garuva</option>
+              <option>Gaspar</option>
+              <option>Governador Celso Ramos</option>
+              <option>Grão Pará</option>
+              <option>Gravatal</option>
+              <option>Guabiruba</option>
+              <option>Guaraciaba</option>
+              <option>Guaramirim</option>
+              <option>Guarujá do Sul</option>
+              <option>Guatambú</option>
+              <option>Herval d'Oeste</option>
+              <option>Ibiam</option>
+              <option>Ibicaré</option>
+              <option>Ibirama</option>
+              <option>Içara</option>
+              <option>Ilhota</option>
+              <option>Imaruí</option>
+              <option>Imbituba</option>
+              <option>Imbuia</option>
+              <option>Indaial</option>
+              <option>Iomerê</option>
+              <option>Ipira</option>
+              <option>Iporã do Oeste</option>
+              <option>Ipuaçu</option>
+              <option>Ipumirim</option>
+              <option>Iraceminha</option>
+              <option>Irani</option>
+              <option>Irati</option>
+              <option>Irineópolis</option>
+              <option>Itá</option>
+              <option>Itaiópolis</option>
+              <option>Itajaí</option>
+              <option>Itapema</option>
+              <option>Itapiranga</option>
+              <option>Itapoá</option>
+              <option>Ituporanga</option>
+              <option>Jaborá</option>
+              <option>Jacinto Machado</option>
+              <option>Jaguaruna</option>
+              <option>Jaraguá do Sul</option>
+              <option>Jardinópolis</option>
+              <option>Joaçaba</option>
+              <option>Joinville</option>
+              <option>José Boiteux</option>
+              <option>Jupiá</option>
+              <option>Lacerdópolis</option>
+              <option>Lages</option>
+              <option>Laguna</option>
+              <option>Lajeado Grande</option>
+              <option>Laurentino</option>
+              <option>Lauro Müller</option>
+              <option>Lebon Régis</option>
+              <option>Leoberto Leal</option>
+              <option>Lindóia do Sul</option>
+              <option>Lontras</option>
+              <option>Luiz Alves</option>
+              <option>Luzerna</option>
+              <option>Macieira</option>
+              <option>Mafra</option>
+              <option>Major Gercino</option>
+              <option>Major Vieira</option>
+              <option>Maracajá</option>
+              <option>Maravilha</option>
+              <option>Marema</option>
+              <option>Massaranduba</option>
+              <option>Matos Costa</option>
+              <option>Maximiliano Gaidzinski</option>
+              <option>Modelo</option>
+              <option>Mondaí</option>
+              <option>Monte Carlo</option>
+              <option>Monte Castelo</option>
+              <option>Morro da Fumaça</option>
+              <option>Morro Grande</option>
+              <option>Navegantes</option>
+              <option>Nova Erechim</option>
+              <option>Nova Itaberaba</option>
+              <option>Nova Trento</option>
+              <option>Nova Veneza</option>
+              <option>Novo Horizonte</option>
+              <option>Orleans</option>
+              <option>Otacílio Costa</option>
+              <option>Ouro</option>
+              <option>Ouro Verde</option>
+              <option>Paial</option>
+              <option>Painel</option>
+              <option>Palhoça</option>
+              <option>Palma Sola</option>
+              <option>Palmeira</option>
+              <option>Palmitos</option>
+              <option>Papanduva</option>
+              <option>Paraíso</option>
+              <option>Passo de Torres</option>
+              <option>Passos Maia</option>
+              <option>Paulo Lopes</option>
+              <option>Pedras Grandes</option>
+              <option>Penha</option>
+              <option>Peritiba</option>
+              <option>Pescaria Brava</option>
+              <option>Petrolândia</option>
+              <option>Pinhalzinho</option>
+              <option>Pinheiro Preto</option>
+              <option>Piratuba</option>
+              <option>Planalto Alegre</option>
+              <option>Pomerode</option>
+              <option>Ponte Alta</option>
+              <option>Ponte Alta do Norte</option>
+              <option>Ponte Serrada</option>
+              <option>Porto Belo</option>
+              <option>Porto União</option>
+              <option>Pouso Redondo</option>
+              <option>Praia Grande</option>
+              <option>Presidente Castelo Branco</option>
+              <option>Presidente Getúlio</option>
+              <option>Presidente Nereu</option>
+              <option>Princesa</option>
+              <option>Quilombo</option>
+              <option>Rancho Queimado</option>
+              <option>Rio das Antas</option>
+              <option>Rio do Campo</option>
+              <option>Rio do Oeste</option>
+              <option>Rio do Sul</option>
+              <option>Rio dos Cedros</option>
+              <option>Rio Fortuna</option>
+              <option>Rio Negrinho</option>
+              <option>Rio Rufino</option>
+              <option>Riqueza</option>
+              <option>Rodeio</option>
+              <option>Romelândia</option>
+              <option>Salete</option>
+              <option>Saltinho</option>
+              <option>Salto Veloso</option>
+              <option>Sangão</option>
+              <option>Santa Cecília</option>
+              <option>Santa Helena</option>
+              <option>Santa Rosa de Lima</option>
+              <option>Santa Rosa do Sul</option>
+              <option>Santa Terezinha</option>
+              <option>Santa Terezinha do Progresso</option>
+              <option>Santiago do Sul</option>
+              <option>Santo Amaro da Imperatriz</option>
+              <option>São Bento do Sul</option>
+              <option>São Bernardino</option>
+              <option>São Carlos</option>
+              <option>São Cristóvão do Sul</option>
+              <option>São Domingos</option>
+              <option>São Francisco do Sul</option>
+              <option>São João Batista</option>
+              <option>São João do Itaperiú</option>
+              <option>São João do Oeste</option>
+              <option>São João do Sul</option>
+              <option>São Joaquim</option>
+              <option>São José</option>
+              <option>São José do Cedro</option>
+              <option>São José do Cerrito</option>
+              <option>São Lourenço do Oeste</option>
+              <option>São Ludgero</option>
+              <option>São Martinho</option>
+              <option>São Miguel da Boa Vista</option>
+              <option>São Miguel do Oeste</option>
+              <option>São Pedro de Alcântara</option>
+              <option>Saudades</option>
+              <option>Schroeder</option>
+              <option>Seara</option>
+              <option>Serra Alta</option>
+              <option>Siderópolis</option>
+              <option>Sombrio</option>
+              <option>Sul Brasil</option>
+              <option>Taió</option>
+              <option>Tangará</option>
+              <option>Tigrinhos</option>
+              <option>Tijucas</option>
+              <option>Timbé do Sul</option>
+              <option>Timbó</option>
+              <option>Timbó Grande</option>
+              <option>Três Barras</option>
+              <option>Treviso</option>
+              <option>Treze de Maio</option>
+              <option>Treze Tílias</option>
+              <option>Trombudo Central</option>
+              <option>Tubarão</option>
+              <option>Tunápolis</option>
+              <option>Turvo</option>
+              <option>União do Oeste</option>
+              <option>Urubici</option>
+              <option>Urupema</option>
+              <option>Urussanga</option>
+              <option>Vargeão</option>
+              <option>Vargem</option>
+              <option>Vargem Bonita</option>
+              <option>Vidal Ramos</option>
+              <option>Videira</option>
+              <option>Vitor Meireles</option>
+              <option>Witmarsum</option>
+              <option>Xanxerê</option>
+              <option>Xavantina</option>
+              <option>Xaxim</option>
+              <option>Zortéa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-segmento">Segmento de Atuação *</label>
+            <select id="f-segmento" class="form-input" required>
+              <option value="">Selecione o segmento</option>
+              <option value="Tecnologia">💻 Tecnologia</option>
+              <option value="Comércio">🛍️ Comércio</option>
+              <option value="Indústria">🏭 Indústria</option>
+              <option value="Serviços">🤝 Serviços</option>
+              <option value="Agronegócio">🌾 Agronegócio</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="f-contato">E-mail / Meio de Contato *</label>
+            <input type="text" id="f-contato" class="form-input" placeholder="contato@empresa.com.br ou (48) 99999-0000"
+              required />
+          </div>
+
+          <div class="form-group form-group-status">
+            <label class="form-label">Status *</label>
+            <div class="toggle-group">
+              <label class="toggle-label" id="toggle-label-ativo">
+                <input type="radio" name="status" value="Ativo" id="status-ativo" checked />
+                <span class="toggle-btn active">✔ Ativo</span>
+              </label>
+              <label class="toggle-label" id="toggle-label-inativo">
+                <input type="radio" name="status" value="Inativo" id="status-inativo" />
+                <span class="toggle-btn">✖ Inativo</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" onclick="resetForm(); showView('list')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Salvar Empreendimento
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- DELETE MODAL -->
+  <div class="modal-overlay" id="modal-delete" onclick="closeDeleteModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-icon">⚠️</div>
+      <h2 class="modal-title">Confirmar exclusão</h2>
+      <p class="modal-text">Tem certeza que deseja remover o empreendimento <strong id="modal-emp-name"></strong>? Esta
+        ação não pode ser desfeita.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn-danger" id="btn-confirm-delete" onclick="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
