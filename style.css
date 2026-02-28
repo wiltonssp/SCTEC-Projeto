@@ -1,8 +1,9 @@
 /* ============================================
-   SCTEC — Design Syste
+   SCTEC — Design System
    ============================================ */
 
 :root {
+  /* === DARK MODE (padrão) === */
   --bg-base: #0a0d12;
   --bg-surface: #111620;
   --bg-elevated: #161c2a;
@@ -38,6 +39,34 @@
   --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.15);
 }
 
+/* === LIGHT MODE === */
+body.light {
+  --bg-base: #f0f4f8;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e8eef5;
+  --bg-card: #ffffff;
+  --bg-input: #f5f8fc;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --border: rgba(0, 0, 0, 0.09);
+  --border-focus: rgba(16, 185, 129, 0.55);
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.12);
+
+  --emerald-glow: rgba(16, 185, 129, 0.12);
+  --emerald-glow-sm: rgba(16, 185, 129, 0.07);
+  --accent-red-glow: rgba(239, 68, 68, 0.1);
+}
+
+/* Transição suave ao trocar tema */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 *,
 *::before,
 *::after {
@@ -62,6 +91,12 @@ body {
     radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99, 102, 241, 0.06) 0%, transparent 60%);
 }
 
+body.light {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(16, 185, 129, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(99, 102, 241, 0.03) 0%, transparent 60%);
+}
+
 /* ============ SCROLLBAR ============ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -79,6 +114,14 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #3a4a6a;
+}
+
+body.light ::-webkit-scrollbar-thumb {
+  background: #c2cfe0;
+}
+
+body.light ::-webkit-scrollbar-thumb:hover {
+  background: #a0b3c8;
 }
 
 /* ============ SIDEBAR ============ */
@@ -240,6 +283,77 @@ body {
   text-align: center;
 }
 
+/* ============ THEME TOGGLE ============ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin: 0 12px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.theme-toggle:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: var(--emerald-glow);
+}
+
+.theme-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.theme-toggle-label svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+/* Pill switch */
+.theme-pill {
+  width: 40px;
+  height: 22px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  position: relative;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-pill::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: all var(--transition);
+}
+
+body.light .theme-pill {
+  background: var(--emerald-500);
+  border-color: var(--emerald-600);
+}
+
+body.light .theme-pill::after {
+  left: calc(100% - 17px);
+  background: #fff;
+}
+
 /* ============ MOBILE HEADER ============ */
 .mobile-header {
   display: none;
@@ -298,6 +412,26 @@ body {
 .btn-mobile-add:hover {
   background: var(--emerald-400);
   transform: scale(1.08);
+}
+
+.btn-mobile-theme {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-mobile-theme:hover {
+  background: var(--emerald-glow);
+  color: var(--emerald-400);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 /* ============ SIDEBAR OVERLAY (mobile) ============ */
