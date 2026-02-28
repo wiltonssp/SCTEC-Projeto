@@ -7,6 +7,7 @@
 
 /* ---------- CONSTANTS ---------- */
 const STORAGE_KEY = 'sctec_empreendimentos';
+const THEME_KEY = 'sctec_theme';
 
 const SEGMENT_ICONS = {
     'Tecnologia': '💻',
@@ -20,6 +21,31 @@ const SEGMENT_ICONS = {
 let empreendimentos = [];
 let deleteTargetId = null;
 let currentView = 'list';
+
+/* ---------- THEME ---------- */
+function applyTheme(isLight) {
+    document.body.classList.toggle('light', isLight);
+
+    // Sidebar icons
+    const iconLight = document.getElementById('icon-light');
+    const iconDark = document.getElementById('icon-dark');
+    const label = document.getElementById('theme-label');
+    if (iconLight) iconLight.style.display = isLight ? '' : 'none';
+    if (iconDark) iconDark.style.display = isLight ? 'none' : '';
+    if (label) label.textContent = isLight ? 'Modo Claro' : 'Modo Escuro';
+
+    // Mobile icons
+    const mIconLight = document.getElementById('mobile-icon-light');
+    const mIconDark = document.getElementById('mobile-icon-dark');
+    if (mIconLight) mIconLight.style.display = isLight ? '' : 'none';
+    if (mIconDark) mIconDark.style.display = isLight ? 'none' : '';
+}
+
+function toggleTheme() {
+    const isNowLight = !document.body.classList.contains('light');
+    localStorage.setItem(THEME_KEY, isNowLight ? 'light' : 'dark');
+    applyTheme(isNowLight);
+}
 
 /* ---------- PERSISTENCE ---------- */
 function loadData() {
@@ -324,6 +350,10 @@ document.addEventListener('keydown', e => {
 
 /* ---------- INIT ---------- */
 function init() {
+    // Restaurar tema salvo
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    applyTheme(savedTheme === 'light');
+
     loadData();
 
     // Seed demo data if empty
